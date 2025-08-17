@@ -1,0 +1,8 @@
+[package]
+name = "il2cpp-rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+il2cpp-sys-rs = { git = "https://github.com/agmbk/il2cpp-sys-rs" }
+jpegxl-sys = "0.1.3"
