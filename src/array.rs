@@ -21,52 +21,6 @@ pub type Il2CppMdArray<T, const R: usize> = NonNullRef<Il2CppArray, (PhantomData
 pub type Il2CppMdArrayRef<T, const R: usize> = Ref<Il2CppArray, (PhantomData<T>, Rank<R>)>;
 
 impl<T, const R: usize> Il2CppMdArray<T, R> {
-    /// Allocate a new SZ array
-    ///
-    /// # Arguments
-    ///
-    /// * `elem_class` - Element runtime class
-    /// * `len` - Element count
-    ///
-    /// # Safety
-    ///
-    /// `elem_class` must be a valid pointer
-    ///
-    /// # Returns
-    ///
-    /// Managed array handle or `None` on allocation failure
-    #[allow(unsafe_op_in_unsafe_fn)]
-    #[inline]
-    pub unsafe fn new(
-        elem_class: *mut Il2CppClass,
-        len: il2cpp_array_size_t,
-    ) -> Option<Il2CppSzArray<T>> {
-        Ref::from_ptr(il2cpp_array_new(elem_class, len)).non_null()
-    }
-
-    /// Allocate with array class resolved from element class
-    ///
-    /// # Arguments
-    ///
-    /// * `elem_class` - Element runtime class
-    /// * `len` - Element count
-    ///
-    /// # Safety
-    ///
-    /// `elem_class` must be a valid pointer
-    ///
-    /// # Returns
-    ///
-    /// Managed array handle or `None` on allocation failure
-    #[allow(unsafe_op_in_unsafe_fn)]
-    #[inline]
-    pub unsafe fn new_specific(
-        array_class: *mut Il2CppClass,
-        len: il2cpp_array_size_t,
-    ) -> Option<Il2CppSzArray<T>> {
-        Ref::from_ptr(il2cpp_array_new_specific(array_class, len)).non_null()
-    }
-
     /// Allocate a new multidimensional array
     ///
     /// # Arguments
@@ -167,6 +121,49 @@ impl<T, const R: usize> Il2CppMdArray<T, R> {
 }
 
 impl<T> Il2CppSzArray<T> {
+    /// Allocate a new SZ array
+    ///
+    /// # Arguments
+    ///
+    /// * `elem_class` - Element runtime class
+    /// * `len` - Element count
+    ///
+    /// # Safety
+    ///
+    /// `elem_class` must be a valid pointer
+    ///
+    /// # Returns
+    ///
+    /// Managed array handle or `None` on allocation failure
+    #[allow(unsafe_op_in_unsafe_fn)]
+    #[inline]
+    pub unsafe fn new(elem_class: *mut Il2CppClass, len: il2cpp_array_size_t) -> Option<Self> {
+        Ref::from_ptr(il2cpp_array_new(elem_class, len)).non_null()
+    }
+
+    /// Allocate with array class resolved from element class
+    ///
+    /// # Arguments
+    ///
+    /// * `elem_class` - Element runtime class
+    /// * `len` - Element count
+    ///
+    /// # Safety
+    ///
+    /// `elem_class` must be a valid pointer
+    ///
+    /// # Returns
+    ///
+    /// Managed array handle or `None` on allocation failure
+    #[allow(unsafe_op_in_unsafe_fn)]
+    #[inline]
+    pub unsafe fn new_specific(
+        array_class: *mut Il2CppClass,
+        len: il2cpp_array_size_t,
+    ) -> Option<Self> {
+        Ref::from_ptr(il2cpp_array_new_specific(array_class, len)).non_null()
+    }
+
     /// Pointer to the first element
     #[inline]
     pub const fn data_ptr(self) -> *mut T {
