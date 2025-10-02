@@ -2,7 +2,14 @@
 name = "il2cpp-rs"
 version = "0.1.0"
 edition = "2024"
+authors = ["AGMBK"]
+description = "Rust bindings for Unity's Il2Cpp runtime"
+homepage = "https://github.com/agmbk/il2cpp-rs"
+repository = "https://github.com/agmbk/il2cpp-rs"
+readme = "README.md"
+license = "MIT"
+keywords = ["unity", "il2cpp", "game-development"]
+categories = ["game-development", "external-ffi-bindings"]
 
 [dependencies]
-il2cpp-sys-rs = { git = "https://github.com/agmbk/il2cpp-sys-rs" }
-jpegxl-sys = "0.1.3"
+il2cpp-sys-rs = { git = "https://github.com/agmbk/il2cpp-sys-rs", rev = "7e7438f5be5c8d6e2e5357669422511dbf931f2f" }
