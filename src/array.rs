@@ -1,7 +1,10 @@
+use crate::class::Il2CppClass;
+use crate::class::Il2CppClassRef;
 use crate::{NonNullRef, Ref};
 use il2cpp_sys_rs::{
-    il2cpp_array_get_byte_length, il2cpp_array_new, il2cpp_array_new_full, il2cpp_array_new_specific,
-    il2cpp_array_size_t, Il2CppArray, Il2CppClass,
+    il2cpp_array_class_get, il2cpp_array_element_size, il2cpp_array_get_byte_length, il2cpp_array_length,
+    il2cpp_array_new, il2cpp_array_new_full, il2cpp_array_size_t, il2cpp_bounded_array_class_get,
+    il2cpp_class_array_element_size, Il2CppArray,
 };
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
@@ -26,33 +29,59 @@ impl<T, const R: usize> Il2CppMdArray<T, R> {
     /// # Arguments
     ///
     /// * `array_class` - Array runtime class for rank [`R`]
-    /// * `lengths` - Pointer to [`R`] lengths
-    /// * `lower_bounds` - Pointer to [`R`] lower bounds
+    /// * `lengths` - lengths of each dimension
+    /// * `lower_bounds` - lower bounds of each dimension
     ///
     /// # Safety
     ///
-    /// `elem_class` must be a valid pointer
-    /// `lengths` and `lower_bounds` must each be a list of [`R`] elements
-    ///
-    /// # Returns
-    ///
-    /// Managed array handle or `None` on allocation failure
+    /// `elem_class` must be a valid for the array rank [`R`]
     #[allow(unsafe_op_in_unsafe_fn)]
     #[inline]
     pub unsafe fn new_md(
-        elem_class: *mut Il2CppClass,
-        lengths: *mut il2cpp_array_size_t,
-        lower_bounds: *mut il2cpp_array_size_t,
-    ) -> Option<Self> {
-        Ref::from_ptr(il2cpp_array_new_full(elem_class, lengths, lower_bounds)).non_null()
+        elem_class: Il2CppClass,
+        lengths: &mut [il2cpp_array_size_t; R],
+        lower_bounds: &mut [il2cpp_array_size_t; R],
+    ) -> Il2CppMdArrayRef<T, R> {
+        Ref::from_ptr(il2cpp_array_new_full(
+            elem_class.as_ptr(),
+            lengths.as_mut_ptr(),
+            lower_bounds.as_mut_ptr(),
+        ))
+    }
+
+    /// Obtain (or create) the IL2CPP array class for an element class and rank.
+    ///
+    /// Runtime's canonical way to get the `System.Array` derived
+    /// [`Il2CppClass`] for [`T[,]`] of a given `rank`.
+    #[inline]
+    pub fn array_class_get(element_class: Il2CppClass) -> Option<Il2CppClass> {
+        unsafe {
+            Ref::from_ptr(il2cpp_array_class_get(element_class.as_ptr(), R as u32 + 1)).non_null()
+        }
+    }
+
+    /// Obtain the IL2CPP array class with/without bounds metadata.
+    ///
+    /// When `bounded = true`, IL2CPP returns an array class that supports
+    /// non–zero-based bounds.
+    /// For regular SZ arrays, use `bounded = false`.
+    #[inline]
+    pub fn bounded_array_class_get(element_class: Il2CppClass, bounded: bool) -> Il2CppClassRef {
+        unsafe {
+            Ref::from_ptr(il2cpp_bounded_array_class_get(
+                element_class.as_ptr(),
+                R as u32 + 1,
+                bounded,
+            ))
+        }
     }
 
     /// Downcast to SZ array when the runtime shape is single-dimensional and zero-based
     ///
     /// # Returns
     ///
-    /// `Some(Il2CppSZArray<T>)` for SZ arrays
-    /// `None` for multidimensional or non-zero-based arrays
+    /// Some([`Il2CppSzArray<T>`]) for SZ arrays.
+    /// `None` for multidimensional or non-zero-based arrays.
     #[inline]
     pub const fn try_as_sz(self) -> Option<Il2CppSzArray<T>> {
         if self.is_szarray() {
@@ -73,8 +102,28 @@ impl<T, const R: usize> Il2CppMdArray<T, R> {
 
     /// Return total number of elements
     #[inline]
-    pub const fn len(self) -> il2cpp_array_size_t {
-        unsafe { self.ptr.as_ref() }.max_length
+    pub fn len(self) -> usize {
+        unsafe { il2cpp_array_length(self.ptr.as_ptr()) as usize }
+    }
+
+    /// Size in bytes of one array element given the **array class**.
+    ///
+    /// # Safety
+    ///
+    /// - `array_class` must be a valid `Il2CppClass*` for an array type.
+    #[allow(unsafe_op_in_unsafe_fn)]
+    #[inline]
+    pub unsafe fn array_element_size(array_class: Il2CppClass) -> usize {
+        il2cpp_array_element_size(array_class.as_ptr()) as usize
+    }
+
+    /// Size in bytes of one element for **klass** when `klass` represents an array.
+    /// If `klass` is not an array class, size will compute based on the element type it represents.
+    ///
+    /// Handles value types vs reference types.
+    #[inline]
+    pub fn class_array_element_size(klass: Il2CppClass) -> usize {
+        unsafe { il2cpp_class_array_element_size(klass.as_ptr()) as usize }
     }
 
     /// Return number of elements in dimension `d`
@@ -131,38 +180,29 @@ impl<T> Il2CppSzArray<T> {
     /// # Safety
     ///
     /// `elem_class` must be a valid pointer
-    ///
-    /// # Returns
-    ///
-    /// Managed array handle or `None` on allocation failure
     #[allow(unsafe_op_in_unsafe_fn)]
     #[inline]
-    pub unsafe fn new(elem_class: *mut Il2CppClass, len: il2cpp_array_size_t) -> Option<Self> {
-        Ref::from_ptr(il2cpp_array_new(elem_class, len)).non_null()
+    pub unsafe fn new(elem_class: Il2CppClass, len: il2cpp_array_size_t) -> Option<Self> {
+        Ref::from_ptr(il2cpp_array_new(elem_class.as_ptr(), len)).non_null()
     }
 
-    /// Allocate with array class resolved from element class
-    ///
-    /// # Arguments
-    ///
-    /// * `elem_class` - Element runtime class
-    /// * `len` - Element count
-    ///
-    /// # Safety
-    ///
-    /// `elem_class` must be a valid pointer
-    ///
-    /// # Returns
-    ///
-    /// Managed array handle or `None` on allocation failure
-    #[allow(unsafe_op_in_unsafe_fn)]
-    #[inline]
-    pub unsafe fn new_specific(
-        array_class: *mut Il2CppClass,
-        len: il2cpp_array_size_t,
-    ) -> Option<Self> {
-        Ref::from_ptr(il2cpp_array_new_specific(array_class, len)).non_null()
-    }
+    // this is false since we do not know which rank is associated to the provided array_class.
+    //
+    // /// Allocate with array class resolved from element class
+    // ///
+    // /// # Arguments
+    // ///
+    // /// * `elem_class` - Element runtime class
+    // /// * `len` - Element count
+    // ///
+    // /// # Safety
+    // ///
+    // /// `elem_class` must be a valid pointer
+    // #[allow(unsafe_op_in_unsafe_fn)]
+    // #[inline]
+    // pub unsafe fn new_specific(array_class: Il2CppClass, len: il2cpp_array_size_t) -> Il2CppSzArrayRef<T> {
+    //     Ref::from_ptr(il2cpp_array_new_specific(array_class.as_ptr(), len))
+    // }
 
     /// Pointer to the first element
     #[inline]
@@ -192,8 +232,7 @@ impl<T> Il2CppSzArray<T> {
     ///
     /// Panics if the array is not single-dimensional and zero-based
     #[inline]
-    pub const fn as_slice<'a>(self) -> &'a [T] {
-        assert!(self.is_szarray(), "Non-SZ array");
+    pub fn as_slice<'a>(self) -> &'a [T] {
         unsafe { slice::from_raw_parts(self.data_ptr(), self.len()) }
     }
 
@@ -203,8 +242,7 @@ impl<T> Il2CppSzArray<T> {
     ///
     /// Panics if the array is not single-dimensional and zero-based
     #[inline]
-    pub const fn as_mut_slice<'a>(self) -> &'a mut [T] {
-        assert!(self.is_szarray(), "Non-SZ array");
+    pub fn as_mut_slice<'a>(self) -> &'a mut [T] {
         unsafe { slice::from_raw_parts_mut(self.data_ptr(), self.len()) }
     }
 }
@@ -226,6 +264,7 @@ impl<T> DerefMut for Il2CppSzArray<T> {
 impl<T: fmt::Debug, const R: usize> fmt::Debug for Il2CppMdArray<T, R> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(array) = self.try_as_sz() {
+            // Safety: array is guaranteed to be SZ
             fmt::Debug::fmt(array.as_slice(), f)
         } else {
             write!(f, "Il2CppMdArray<{}, R={}>", core::any::type_name::<T>(), R)
