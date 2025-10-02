@@ -100,11 +100,15 @@ impl<T, const R: usize> Il2CppMdArray<T, R> {
     /// `Some(Il2CppSZArray<T>)` for SZ arrays
     /// `None` for multidimensional or non-zero-based arrays
     #[inline]
-    pub fn try_as_sz(self) -> Option<Il2CppSzArray<T>> {
-        self.is_szarray().then_some(Il2CppSzArray {
-            ptr: self.ptr,
-            _marker: PhantomData,
-        })
+    pub const fn try_as_sz(self) -> Option<Il2CppSzArray<T>> {
+        if self.is_szarray() {
+            Some(Il2CppSzArray {
+                ptr: self.ptr,
+                _marker: PhantomData,
+            })
+        } else {
+            None
+        }
     }
 
     /// Return true for single-dimensional, zero-based arrays
@@ -143,7 +147,7 @@ impl<T, const R: usize> Il2CppMdArray<T, R> {
     ///
     /// Panics if `d` >= `R`
     #[inline]
-    pub fn lb_dim(self, d: usize) -> isize {
+    pub const fn lb_dim(self, d: usize) -> isize {
         assert!(d < R);
         unsafe {
             let a = self.ptr.as_ref();
@@ -191,7 +195,7 @@ impl<T> Il2CppSzArray<T> {
     ///
     /// Panics if the array is not single-dimensional and zero-based
     #[inline]
-    pub fn as_slice<'a>(self) -> &'a [T] {
+    pub const fn as_slice<'a>(self) -> &'a [T] {
         assert!(self.is_szarray(), "Non-SZ array");
         unsafe { slice::from_raw_parts(self.data_ptr(), self.len()) }
     }
@@ -202,7 +206,7 @@ impl<T> Il2CppSzArray<T> {
     ///
     /// Panics if the array is not single-dimensional and zero-based
     #[inline]
-    pub fn as_mut_slice<'a>(self) -> &'a mut [T] {
+    pub const fn as_mut_slice<'a>(self) -> &'a mut [T] {
         assert!(self.is_szarray(), "Non-SZ array");
         unsafe { slice::from_raw_parts_mut(self.data_ptr(), self.len()) }
     }
