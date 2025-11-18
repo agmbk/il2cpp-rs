@@ -6,7 +6,7 @@ use crate::constants::{
 };
 use crate::{Il2CppClass, NonNullRef, Ref};
 use il2cpp_sys_rs::{
-    il2cpp_class_get_field_from_name, il2cpp_field_get_flags, il2cpp_field_get_value, il2cpp_field_static_get_value,
+    il2cpp_class_get_field_from_name, il2cpp_field_get_value, il2cpp_field_static_get_value, il2cpp_type_get_name,
     Il2CppObject, Il2CppType,
 };
 use std::ffi::CStr;
@@ -21,6 +21,7 @@ impl FieldInfo {
     /// Returns the field name
     #[inline]
     pub const fn name(self) -> &'static CStr {
+        // Safety: `name` is never null
         unsafe { CStr::from_ptr(self.as_ref().name) }
     }
 
@@ -52,16 +53,10 @@ impl FieldInfo {
         self.as_ref().offset as usize
     }
 
-    /// Returns the metadata token of the field
-    #[inline]
-    pub const fn token(self) -> u32 {
-        self.as_ref().token
-    }
-
     /// Returns the raw field flags
     #[inline]
     pub fn flags(self) -> u32 {
-        unsafe { il2cpp_field_get_flags(self.as_ptr()) as u32 }
+        self.type_().as_ref().attrs()
     }
 
     /// Field accessibility
@@ -139,6 +134,12 @@ impl FieldInfo {
         il2cpp_field_static_get_value(self.as_ptr(), &mut value as *mut _ as _);
         value
     }
+
+    /// Returns the field token
+    #[inline]
+    pub const fn token(self) -> u32 {
+        self.as_ref().token
+    }
 }
 
 impl FieldInfo {
@@ -174,7 +175,9 @@ impl fmt::Debug for FieldInfo {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("FieldInfo")
             .field("name", &self.name().to_string_lossy())
-            // .field("type", &self.type_())
+            .field("type", &unsafe {
+                CStr::from_ptr(il2cpp_type_get_name(self.type_().as_ptr())).to_string_lossy()
+            })
             .field("offset", &self.offset())
             .finish()
     }
