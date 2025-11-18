@@ -2,6 +2,8 @@
 
 mod array;
 mod class;
+mod constants;
+mod field_info;
 mod string;
 
 /// Raw IL2CPP bindings
@@ -11,6 +13,7 @@ pub mod sys {
 
 pub use array::*;
 pub use class::*;
+pub use field_info::*;
 use std::any::type_name;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
