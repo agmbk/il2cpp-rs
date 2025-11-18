@@ -86,7 +86,7 @@ impl MethodInfo {
 
     /// Returns the raw method flags
     #[inline]
-    pub fn flags(self) -> u32 {
+    pub const fn flags(self) -> u32 {
         // todo: there is also `iflags` (ImplementationFlags), need to research the purpose of each
         self.as_ref().flags as u32
     }
@@ -101,27 +101,27 @@ impl MethodInfo {
     /// - 0x0005 - `protected internal`
     /// - 0x0006 - `public`
     #[inline]
-    pub fn accessibility(self) -> u32 {
+    pub const fn accessibility(self) -> u32 {
         self.flags() & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK
     }
 
     /// Returns `true` the method is static
-    pub fn is_static(self) -> bool {
+    pub const fn is_static(self) -> bool {
         self.flags() & METHOD_ATTRIBUTE_STATIC != 0
     }
 
     /// Returns `true` the method is final
-    pub fn is_final(self) -> bool {
+    pub const fn is_final(self) -> bool {
         self.flags() & METHOD_ATTRIBUTE_FINAL != 0
     }
 
     /// Returns `true` the method is virtual
-    pub fn is_virtual(self) -> bool {
+    pub const fn is_virtual(self) -> bool {
         self.flags() & METHOD_ATTRIBUTE_VIRTUAL != 0
     }
 
     /// Returns `true` the method is abstract
-    pub fn is_abstract(self) -> bool {
+    pub const fn is_abstract(self) -> bool {
         self.flags() & METHOD_ATTRIBUTE_ABSTRACT != 0
     }
 
