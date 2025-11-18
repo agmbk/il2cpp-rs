@@ -5,6 +5,8 @@ mod class;
 mod constants;
 mod exception;
 mod field_info;
+mod method_info;
+mod property_info;
 mod string;
 
 /// Raw IL2CPP bindings
@@ -16,6 +18,8 @@ pub use array::*;
 pub use class::*;
 pub use exception::*;
 pub use field_info::*;
+pub use method_info::*;
+pub use property_info::*;
 use std::any::type_name;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
