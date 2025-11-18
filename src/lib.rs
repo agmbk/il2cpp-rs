@@ -3,6 +3,7 @@
 mod array;
 mod class;
 mod constants;
+mod exception;
 mod field_info;
 mod string;
 
@@ -13,6 +14,7 @@ pub mod sys {
 
 pub use array::*;
 pub use class::*;
+pub use exception::*;
 pub use field_info::*;
 use std::any::type_name;
 use std::cmp::Ordering;
