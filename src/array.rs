@@ -40,14 +40,20 @@ pub type Il2CppMdArrayRef<T, const R: usize> = Il2CppArrayRef<T, Rank<R>>;
 pub struct Rank<const R: usize>;
 
 impl<T, R> Il2CppArray<T, R> {
-    /// Return total number of elements
+    /// Returns the total number of elements
     ///
-    /// # Note
+    /// # Notes
     ///
     /// For multidimensional arrays, this is the product of all dimension lengths
     #[inline]
     pub const fn len(self) -> usize {
         self.as_ref().max_length
+    }
+
+    /// Returns `true` if the array is empty
+    #[inline]
+    pub const fn is_empty(self) -> bool {
+        self.len() == 0
     }
 
     /// Total byte length of all array elements
@@ -83,7 +89,7 @@ impl<T, R> Il2CppArray<T, R> {
         self.class().as_ref().rank
     }
 
-    /// Return true for single-dimensional, zero-based arrays
+    /// Returns `true` for single-dimensional, zero-based arrays
     #[inline]
     pub const fn is_sz(self) -> bool {
         self.as_ref().bounds.is_null()
@@ -357,7 +363,7 @@ impl<T, const R: usize> Il2CppMdArray<T, R> {
         }
     }
 
-    /// Array bounds
+    /// Returns the bounds of each dimension
     ///
     /// # Panics
     ///
