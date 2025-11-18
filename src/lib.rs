@@ -1,10 +1,12 @@
 //! Safe Rust bindings for IL2CPP internals
 
 mod array;
+mod assembly;
 mod class;
 mod constants;
 mod exception;
 mod field_info;
+mod image;
 mod method_info;
 mod property_info;
 mod string;
@@ -15,9 +17,11 @@ pub mod sys {
 }
 
 pub use array::*;
+pub use assembly::*;
 pub use class::*;
 pub use exception::*;
 pub use field_info::*;
+pub use image::*;
 pub use method_info::*;
 pub use property_info::*;
 use std::any::type_name;
