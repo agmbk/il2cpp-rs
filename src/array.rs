@@ -199,6 +199,7 @@ impl<T> Il2CppSzArray<T> {
     /// # Panics
     ///
     /// Panics if the array is not SZ
+    #[track_caller]
     #[inline]
     pub const fn as_slice<'a>(self) -> &'a [T] {
         assert!(self.is_sz(), "array is not SZ");
@@ -219,6 +220,7 @@ impl<T> Il2CppSzArray<T> {
     /// # Panics
     ///
     /// Panics if the array is not SZ
+    #[track_caller]
     #[inline]
     #[allow(unsafe_op_in_unsafe_fn)]
     pub const unsafe fn as_mut_slice<'a>(self) -> &'a mut [T] {
@@ -242,6 +244,7 @@ impl<T> Il2CppSzArray<T> {
     ///
     /// * `index` - Index to write
     /// * `value` - Value to store
+    #[track_caller]
     #[inline]
     pub const fn set_value(self, index: usize, value: T)
     where
@@ -276,6 +279,7 @@ impl<T> Il2CppSzArray<*mut T> {
     ///
     /// * `index` - Index to write
     /// * `value` - Managed object pointer to store
+    #[track_caller]
     #[inline]
     pub unsafe fn set_object(self, index: usize, value: *mut T) {
         assert!(self.is_sz(), "array is not SZ");
@@ -339,6 +343,7 @@ impl<T, const R: usize> Il2CppMdArray<T, R> {
     /// # Arguments
     ///
     /// * `element_class` - Inflated element class
+    #[track_caller]
     #[inline]
     pub fn bounded_array_class_get(element_class: Il2CppClass) -> Option<Il2CppClass> {
         assert_ne!(R, 0);
@@ -357,6 +362,7 @@ impl<T, const R: usize> Il2CppMdArray<T, R> {
     /// # Panics
     ///
     /// Panics when `rank` != `R`
+    #[track_caller]
     #[inline]
     pub fn bounds(self) -> [NonNull<Il2CppArrayBounds>; R] {
         assert_eq!(self.rank() as usize, R);
@@ -372,6 +378,8 @@ impl<T, const R: usize> Il2CppMdArray<T, R> {
 impl<T> Deref for Il2CppSzArray<T> {
     type Target = [T];
 
+    #[track_caller]
+    #[inline]
     fn deref(&self) -> &Self::Target {
         self.as_slice()
     }
