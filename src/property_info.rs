@@ -54,7 +54,6 @@ impl PropertyInfo {
     }
 
     /// Returns the getter method, if any
-    #[track_caller]
     #[inline]
     pub const fn getter(self) -> Option<MethodInfo> {
         Ref::new(self.as_ref().get as _).non_null()
@@ -82,7 +81,6 @@ impl PropertyInfo {
     }
 
     /// Returns the setter method, if any
-    #[track_caller]
     #[inline]
     pub const fn setter(self) -> Option<MethodInfo> {
         Ref::new(self.as_ref().set as _).non_null()

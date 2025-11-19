@@ -106,21 +106,25 @@ impl MethodInfo {
     }
 
     /// Returns `true` the method is static
+    #[inline]
     pub const fn is_static(self) -> bool {
         self.flags() & METHOD_ATTRIBUTE_STATIC != 0
     }
 
     /// Returns `true` the method is final
+    #[inline]
     pub const fn is_final(self) -> bool {
         self.flags() & METHOD_ATTRIBUTE_FINAL != 0
     }
 
     /// Returns `true` the method is virtual
+    #[inline]
     pub const fn is_virtual(self) -> bool {
         self.flags() & METHOD_ATTRIBUTE_VIRTUAL != 0
     }
 
     /// Returns `true` the method is abstract
+    #[inline]
     pub const fn is_abstract(self) -> bool {
         self.flags() & METHOD_ATTRIBUTE_ABSTRACT != 0
     }
@@ -156,6 +160,7 @@ impl MethodInfo {
     ///
     /// * `object` - Target instance, null for a static method
     /// * `arguments` - Mutable slice of argument pointers
+    #[inline]
     pub fn invoke<T>(
         self,
         object: Ref<T, ()>,
