@@ -117,7 +117,6 @@ impl fmt::Debug for Il2CppImage {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Il2CppImage")
             .field("name", &self.name().to_string_lossy())
-            .field("nameNoExt", &self.name_no_ext().to_string_lossy())
             .field("assembly", &self.assembly().name())
             .field("typeCount", &self.as_ref().typeCount)
             .field("exportedTypeCount", &self.as_ref().exportedTypeCount)

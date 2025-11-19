@@ -152,6 +152,12 @@ impl Il2CppClass {
         unsafe { il2cpp_class_is_subclass_of(self.as_ptr(), other.as_ptr(), check_interfaces) }
     }
 
+    /// Returns the class token
+    #[inline]
+    pub const fn token(self) -> u32 {
+        self.as_ref().token
+    }
+
     /// Size in bytes of one element of `class`
     ///
     /// # Arguments
@@ -293,9 +299,14 @@ impl fmt::Debug for Il2CppClass {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Il2CppClass")
             .field("name", &self.name().to_string_lossy())
-            .field("namespace", &self.namespace().to_string_lossy())
             .field("declaring_type", &self.declaring_type())
-            .field("image", &self.image())
+            .field("namespace", &self.namespace().to_string_lossy())
+            .field("image", &self.image().name())
+            .field("parent", &self.parent())
+            .field("token", &self.token())
+            .field("fields", &self.fields().len())
+            .field("properties", &self.properties().len())
+            .field("methods", &self.methods().len())
             .finish()
     }
 }
