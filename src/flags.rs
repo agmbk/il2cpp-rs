@@ -1,5 +1,7 @@
 //! IL2CPP Table definitions
 
+#![allow(unused)]
+
 /*
  * Field Attributes (21.1.5).
  */

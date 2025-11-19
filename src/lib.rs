@@ -3,9 +3,9 @@
 mod array;
 mod assembly;
 mod class;
-mod constants;
 mod exception;
 mod field_info;
+mod flags;
 mod image;
 mod method_info;
 mod property_info;

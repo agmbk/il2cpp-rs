@@ -1,6 +1,6 @@
 //! FieldInfo
 
-use crate::constants::{
+use crate::flags::{
     FIELD_ATTRIBUTE_FIELD_ACCESS_MASK, FIELD_ATTRIBUTE_INIT_ONLY, FIELD_ATTRIBUTE_LITERAL,
     FIELD_ATTRIBUTE_STATIC,
 };
