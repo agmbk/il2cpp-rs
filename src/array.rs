@@ -5,8 +5,8 @@ use crate::{NonNullRef, Ref};
 use il2cpp_sys_rs::{
     il2cpp_array_class_get, il2cpp_array_get_byte_length, il2cpp_array_new,
     il2cpp_array_new_full, il2cpp_array_new_specific, il2cpp_array_size_t, il2cpp_bounded_array_class_get,
-    il2cpp_class_array_element_size, il2cpp_gc_wbarrier_set_field, Il2CppArrayBounds,
-    Il2CppTypeEnum_IL2CPP_TYPE_ARRAY, Il2CppTypeEnum_IL2CPP_TYPE_SZARRAY,
+    il2cpp_gc_wbarrier_set_field, Il2CppArrayBounds, Il2CppTypeEnum_IL2CPP_TYPE_ARRAY,
+    Il2CppTypeEnum_IL2CPP_TYPE_SZARRAY,
 };
 use std::any::type_name;
 use std::marker::PhantomData;
@@ -124,21 +124,6 @@ impl<T, R> Il2CppArray<T, R> {
     #[inline]
     pub const fn array_element_size(array_class: Il2CppClass) -> usize {
         array_class.as_ref().element_size as usize
-    }
-
-    /// Size in bytes of one element of `class`
-    ///
-    /// # Arguments
-    ///
-    /// * `array_class` - Inflated class
-    ///
-    /// # Example
-    ///
-    /// Char types are of size `u16`\
-    /// Reference types are of size `usize`
-    #[inline]
-    pub fn class_array_element_size(class: Il2CppClass) -> usize {
-        unsafe { il2cpp_class_array_element_size(class.as_ptr()) as usize }
     }
 }
 

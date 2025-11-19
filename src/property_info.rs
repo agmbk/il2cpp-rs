@@ -50,7 +50,7 @@ impl PropertyInfo {
     #[track_caller]
     #[inline]
     pub const fn parent(self) -> Il2CppClass {
-        Ref::new(self.as_ref().parent as _).unwrap_non_null()
+        Il2CppClass::from_ptr(self.as_ref().parent as _).unwrap()
     }
 
     /// Returns the getter method, if any

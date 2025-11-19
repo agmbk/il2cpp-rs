@@ -33,7 +33,7 @@ impl MethodInfo {
     #[track_caller]
     #[inline]
     pub const fn declaring_type(self) -> Il2CppClass {
-        Ref::new(self.as_ref().klass).unwrap_non_null()
+        Il2CppClass::from_ptr(self.as_ref().klass).unwrap()
     }
 
     /// Returns the method return type

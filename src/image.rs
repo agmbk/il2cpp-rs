@@ -1,7 +1,7 @@
 //! Il2CppImage
 
-use crate::{Il2CppAssembly, NonNullRef, Ref};
-use il2cpp_sys_rs::il2cpp_get_corlib;
+use crate::{Il2CppAssembly, Il2CppClass, NonNullRef, Ref};
+use il2cpp_sys_rs::{il2cpp_get_corlib, il2cpp_image_get_class, il2cpp_image_get_class_count};
 use std::ffi::CStr;
 use std::fmt;
 
@@ -41,6 +41,34 @@ impl Il2CppImage {
     pub const fn token(self) -> u32 {
         self.as_ref().token
     }
+
+    /// Iterator over all classes in the image
+    #[inline]
+    pub fn classes(self) -> AssemblyClassIter {
+        let len = unsafe { il2cpp_image_get_class_count(self.as_ptr()) };
+        AssemblyClassIter {
+            image: self,
+            index: 0,
+            len,
+        }
+    }
+
+    /// Finds a class by namespace and name
+    ///
+    /// # Arguments
+    ///
+    /// * `namespace` - Namespace of the class, empty for global
+    /// * `name` - Simple class name.
+    ///   For generic **definitions**, include the arity suffix (e.g. `List`1`, `Dictionary`2`).
+    ///   Do **not** include type arguments here. For nested types, use `Outer`1/Inner`2`.
+    ///
+    /// # Returns
+    ///
+    /// Class handle if found, otherwise `None`
+    #[inline]
+    pub fn find_class(self, namespace: &CStr, name: &CStr) -> Option<Il2CppClass> {
+        Il2CppClass::from_name(self, namespace, name)
+    }
 }
 
 impl Il2CppImage {
@@ -52,7 +80,30 @@ impl Il2CppImage {
     #[track_caller]
     #[inline]
     pub fn corlib() -> Self {
-        unsafe { Ref::new(il2cpp_get_corlib() as _).unwrap_non_null() }
+        unsafe { Self::from_ptr(il2cpp_get_corlib() as _).unwrap() }
+    }
+}
+
+/// Iterator over all classes in an image
+pub struct AssemblyClassIter {
+    /// Parent image reference
+    image: Il2CppImage,
+    /// Current index
+    index: usize,
+    /// Total number of classes in the image
+    len: usize,
+}
+
+impl Iterator for AssemblyClassIter {
+    type Item = NonNullRef<il2cpp_sys_rs::Il2CppClass, ()>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index >= self.len {
+            return None;
+        }
+        let class = unsafe { il2cpp_image_get_class(self.image.as_ptr(), self.index) };
+        self.index += 1;
+        Il2CppClass::from_ptr(class as _)
     }
 }
 
