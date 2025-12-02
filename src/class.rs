@@ -184,11 +184,15 @@ impl Il2CppClass {
     /// Each [`FieldInfo`] describes a declared field, including static and instance ones.
     #[inline]
     pub const fn fields(self) -> &'static [FieldInfo] {
-        unsafe {
-            slice::from_raw_parts(
-                self.as_ref().fields as _,
-                self.as_ref().field_count as usize,
-            )
+        if self.as_ref().fields.is_null() {
+            &[]
+        } else {
+            unsafe {
+                slice::from_raw_parts(
+                    self.as_ref().fields as _,
+                    self.as_ref().field_count as usize,
+                )
+            }
         }
     }
 
@@ -197,11 +201,15 @@ impl Il2CppClass {
     /// Each [`PropertyInfo`] describes a declared property, including static and instance ones.
     #[inline]
     pub const fn properties(self) -> &'static [PropertyInfo] {
-        unsafe {
-            slice::from_raw_parts(
-                self.as_ref().properties as _,
-                self.as_ref().property_count as usize,
-            )
+        if self.as_ref().properties.is_null() {
+            &[]
+        } else {
+            unsafe {
+                slice::from_raw_parts(
+                    self.as_ref().properties as _,
+                    self.as_ref().property_count as usize,
+                )
+            }
         }
     }
 
@@ -210,11 +218,15 @@ impl Il2CppClass {
     /// Each [`MethodInfo`] represents a declared method, including inherited and generic ones.
     #[inline]
     pub const fn methods(self) -> &'static [MethodInfo] {
-        unsafe {
-            slice::from_raw_parts(
-                self.as_ref().methods as _,
-                self.as_ref().method_count as usize,
-            )
+        if self.as_ref().methods.is_null() {
+            &[]
+        } else {
+            unsafe {
+                slice::from_raw_parts(
+                    self.as_ref().methods as _,
+                    self.as_ref().method_count as usize,
+                )
+            }
         }
     }
 

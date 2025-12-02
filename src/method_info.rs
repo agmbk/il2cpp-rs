@@ -56,9 +56,12 @@ impl MethodInfo {
     /// Returns the parameters
     #[inline]
     pub const fn parameters<'a>(self) -> &'a [Ref<Il2CppType, ()>] {
-        // Safety: `parameters` is a non-null array of length equal to `parameters_count`
-        unsafe {
-            slice::from_raw_parts(*self.as_ref().parameters as _, self.parameters_count() as _)
+        if self.as_ref().parameters.is_null() {
+            &[]
+        } else {
+            unsafe {
+                slice::from_raw_parts(*self.as_ref().parameters as _, self.parameters_count() as _)
+            }
         }
     }
 
