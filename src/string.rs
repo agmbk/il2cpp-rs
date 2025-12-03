@@ -120,14 +120,14 @@ impl Il2CppString {
     ///
     /// Returns `Err` if the UTF-16 data cannot be converted to valid UTF-8
     #[inline]
-    pub fn to_utf16(self) -> Result<String, FromUtf16Error> {
+    pub fn to_utf8(self) -> Result<String, FromUtf16Error> {
         String::from_utf16(self.as_slice())
     }
 
     /// Convert from UTF-16 code units to a Rust UTF-8 [`String`],
     /// replacing invalid sequences with [the replacement character (`U+FFFD`)][U+FFFD].
     #[inline]
-    pub fn to_utf16_lossy(self) -> String {
+    pub fn to_utf8_lossy(self) -> String {
         String::from_utf16_lossy(self.as_slice())
     }
 }
@@ -173,12 +173,12 @@ impl Deref for Il2CppString {
 
 impl fmt::Display for Il2CppString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Display::fmt(&self.to_utf16_lossy(), f)
+        fmt::Display::fmt(&self.to_utf8_lossy(), f)
     }
 }
 
 impl fmt::Debug for Il2CppString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Debug::fmt(&self.to_utf16_lossy(), f)
+        fmt::Debug::fmt(&self.to_utf8_lossy(), f)
     }
 }
