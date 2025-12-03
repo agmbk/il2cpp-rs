@@ -26,6 +26,9 @@ Add to your `Cargo.toml`:
 il2cpp-rs = "0.1"
 ````
 
+Configure [il2cpp-sys-rs](https://github.com/agmbk/il2cpp-sys-rs?tab=readme-ov-file#usage) with the target Unity
+version.
+
 Then import and initialize:
 
 ```rust
